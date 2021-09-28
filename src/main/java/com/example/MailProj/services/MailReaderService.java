@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.MimeBodyPart;
+import javax.mail.search.FlagTerm;
 import java.io.File;
 import java.util.Properties;
 
@@ -17,22 +18,17 @@ public class MailReaderService {
             Session mailSession = Session.getInstance(props);
             mailSession.setDebug(true);
             Store mailStore = mailSession.getStore("imap");
-            mailStore.connect("outlook.live.com", "******", "*****");
-            if(mailStore.isConnected())
+            mailStore.connect("outlook.live.com", "atishmicro@outlook.com", "atish123@");
+            if (mailStore.isConnected())
                 System.out.println("voila");
-            Folder folder=mailStore.getFolder("Inbox");
+            Folder folder = mailStore.getFolder("Inbox");
             folder.open(Folder.READ_WRITE);
-            Message[] messages=folder.getMessages();
-            for(Message message: messages)
-            {
-                if(message.isSet(Flags.Flag.SEEN))
-                {
-                    System.out.println("seen message");
-                }
-                else
-                {
-                    message.setFlag(Flags.Flag.SEEN,true);
-                }
+            Message[] messages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+            for (Message message : messages) {
+
+
+                message.setFlag(Flags.Flag.SEEN, true);
+
                 Multipart multiPart = (Multipart) message.getContent();
                 int numberOfParts = multiPart.getCount();
                 for (int partCount = 0; partCount < numberOfParts; partCount++) {
@@ -46,9 +42,7 @@ public class MailReaderService {
             }
 
             return null;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
